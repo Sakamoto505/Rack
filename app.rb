@@ -3,48 +3,22 @@ require_relative 'time_format'
 class App
 
   def call(env)
-    @request = Rack::Request.new(env)
-    response
-
-    [status, headers, body]
+    r = Rack::Request.new(env)
+      return response(404, "not found") if r.path_info != '/time'
+    @format = TimeFormat.new(r.params)
+    if @format.valid_format?
+      response(200, @format.success_format)
+    else
+      response(400, @format.wrong_format)
+    end
   end
 
   private
 
-  def response
-    return different_url if @request.path_info != '/time'
-    @format = TimeFormat.new(@request.params)
-    if @format.valid_format?
-      valid_format
-    else
-      invalid_format
-    end
-  end
-
-  def status
-    @status
-  end
-
-  def headers
-    { 'Content-Type' => 'text/plain'}
-  end
-
-  def body
-    ["#{@message}\n"]
-  end
-
-  def valid_format
-    @status = 200
-    @message = @format.result
-  end
-
-  def invalid_format
-    @status = 400
-    @message = "Unknown time format: #{@format.wrong_format}"
-  end
-
-  def different_url
-    @status = 404
-    @message = "Page not found"
+  def response(code, text)
+    response = Rack::Response
+    response.status = code
+    response['Content-Type'] = 'text/plain'
+    response.write(text)
   end
 end

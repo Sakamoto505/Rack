@@ -9,11 +9,12 @@ class TimeFormat
     second: '%S'
   }.freeze
 
-  attr_reader :wrong_format
-
   def initialize(params)
     @params = params['format'].split(',')
-    @wrong_format = @params - TIME_FORMATS.keys.map(&:to_s)
+  end
+
+  def wrong_format
+    @wrong_format ||= (@params - TIME_FORMATS.keys)
   end
 
   def check_format
@@ -23,10 +24,10 @@ class TimeFormat
   end
 
   def valid_format?
-    @wrong_format.empty?
+    wrong_format.empty?
   end
 
-  def result
+  def success_format
     Time.now.strftime(check_format)
   end
 end

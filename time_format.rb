@@ -14,7 +14,7 @@ class TimeFormat
   end
 
   def wrong_format
-    @params - TIME_FORMATS.keys
+    @wrong_format ||= (@params - TIME_FORMATS.keys)
   end
 
   def check_format
